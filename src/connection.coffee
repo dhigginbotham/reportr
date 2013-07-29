@@ -37,18 +37,13 @@ mongo = (opts) ->
   # keep our scope in line
   @
 
-mongo::connect = (collection, fn) ->
+mongo::connect = (fn) ->
 
   self = @
 
   MongoClient.connect self.uri, (err, db) ->
     return if err? then fn err, null
-
-    # only if we have a db will we bother connecting to it
-    if db? then self.db = db
-
-    db.collection(collection).find({}).toArray (err, docs) ->
-      # allow for sync/async for whatever fancy you may require
-      return if err? then fn err, null else fn null, docs
+    self.db = if db? then db else null
+    if db? then fn null, db else fn null, null
 
 module.exports = mongo

@@ -10,12 +10,20 @@ app.set('port', 1337);
 
 // make options for reportr
 
-var reportr_opts = {}
+var reportr_opts = {
+  mongo: {
+    database: "mgive"
+     // you can pass ip, port, and 
+     // database or skip that and pass uri: mongodb... etc
+  },
+  path: "/reports",
+  type: "json"
+};
 
 reports = new reportr(reportr_opts);
 
 reports.mount(app);
 
 server.listen(app.get('port'), function() {
-  console.log('server starting on %s', app.get('port'));
+  console.log('REPORTR ::.-^-.:: example server starting on %s', app.get('port'));
 });

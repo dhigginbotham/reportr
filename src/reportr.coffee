@@ -8,11 +8,14 @@ reportr = (opts) ->
   @path = "/reports/view"
 
   # give template for JSON/HTML/PDF/CSV etc files
-  @template = "JSON"
+  @type = "json"
 
   @mongo = {}
 
   if opts? then _.extend @, opts
+
+  _type = @type.toLowerCase()
+  @type = _type
 
   # load in our mongo, so we can play with it
   @mongo = new mongo @mongo
@@ -23,9 +26,12 @@ reportr = (opts) ->
 reportr::mount = (app) ->
   self = @
 
-  app.get self.path + "/:collection", (req, res) ->
+  self.mongo.connect (err, db) ->
 
-    self.mongo.connect req.params.collection, (err, docs) ->
-      res.send docs
+    app.get self.path + "/:collection", (req, res) ->
+
+      col = req.params.collection
+      db.collection(col).find({}).toArray (err, docs) ->
+        res.send docs
 
 module.exports = reportr
