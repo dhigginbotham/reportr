@@ -1,0 +1,42 @@
+{
+  "name": "reportr",
+  "version": "0.0.1",
+  "description": "make csv, pdf, or html/email files from mongodb collections",
+  "main": "lib/index.js",
+  "keywords": [
+    "reports",
+    "pdf",
+    "html",
+    "mongodb"
+  ],
+  "author": {
+    "name": "David Higginbotham",
+    "email": "davehigginbotham@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ms": "~0.6.1",
+    "underscore": "~1.5.1",
+    "mongodb": "~1.3.12"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.6.3",
+    "mocha": "~1.12.0",
+    "uglify-js": "~2.3.6",
+    "stylus": "~0.34.1",
+    "expect.js": "~0.2.0",
+    "express": "latest",
+    "flour": "~0.5.5"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "scripts": {
+    "test": "mocha test/reportr.coffee -R spec -t 4000 --compilers coffee:coffee-script"
+  },
+  "bugs": "https://github.com/dhigginbotham/reportr/issues",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:dhigginbotham/reportr.git"
+  }
+}
