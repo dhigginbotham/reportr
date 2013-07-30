@@ -15,6 +15,7 @@ var options = {
     database: "test", // pass a string for your database
     user: "user", // pass a string for your database username
     pass: "pass", // pass a string for your database password
+    query: "?w=1", // pass a string for your database querystring
     // alternatively you can pass a `uri` string ie:
     uri: "mongodb://user:pass@127.0.0.1:27017/test"
   }

@@ -42,6 +42,12 @@ mongo::connect = (fn) ->
 
   self = @
 
+  # get yo' jiggy wid it, erm I mean connect to the db
+  # but make sure your pattern is only firing this once
+  # then sharing `@db` thereafter, if you connect/reconnect
+  # it's gonna do ugly things, I assure you (ie blow out your
+  # memory, create billions of connections, its so ugly..)
+
   MongoClient.connect self.uri, (err, db) ->
     return if err? then fn err, null
     self.db = if db? then db else null
@@ -49,6 +55,7 @@ mongo::connect = (fn) ->
 
 mongo::findByCollection = (collection, query, fn) ->
 
+  # store our collection to a local var
   collection = @db.collection(collection)
 
   collection.find(query).toArray (err, docs) ->
@@ -57,6 +64,7 @@ mongo::findByCollection = (collection, query, fn) ->
 
 mongo::countByCollection = (collection, fn) ->
 
+  # store our collection to a local var
   collection = @db.collection(collection)
   
   collection.count (err, count) ->
