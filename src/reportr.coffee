@@ -30,8 +30,11 @@ reportr::mount = (app) ->
 
     app.get self.path + "/:collection", (req, res) ->
 
-      col = req.params.collection
-      db.collection(col).find({}).toArray (err, docs) ->
-        res.send docs
+      collection = req.params.collection
+      query = req.query
+
+      db.collection(collection).find(query).toArray (err, docs) ->
+        json = _.extend {}, docs, length: docs.length
+        res.send json
 
 module.exports = reportr
