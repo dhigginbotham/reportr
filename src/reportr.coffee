@@ -36,7 +36,7 @@ reportr::mount = (app) ->
       query = req.query
 
       mon.findByCollection collection, query, (err, docs) ->
-        res.json docs
+        return if err? then res.json err else res.json docs
 
     # countByCollection
     app.get self.path + "/:collection/count", (req, res) ->
@@ -45,7 +45,7 @@ reportr::mount = (app) ->
       collection = req.params.collection
 
       mon.countByCollection collection, (err, count) ->
-        res.json count
+        return if err? then res.json err else res.json count
 
 reportr::switchr = ->
 

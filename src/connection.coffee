@@ -2,6 +2,7 @@
 _ = require "underscore"
 
 MongoClient = require("mongodb").MongoClient
+ObjectID = require("mongodb").ObjectID
 format = require("util").format
 
 mongo = (opts) ->
@@ -55,12 +56,17 @@ mongo::connect = (fn) ->
 
 mongo::findByCollection = (collection, query, fn) ->
 
+  
   # store our collection to a local var
   collection = @db.collection(collection)
 
-  collection.find(query).toArray (err, docs) ->
-    return if err? then fn err, null
-    if docs? then fn null, docs
+  @querier query, (err, queried) ->
+
+    collection.find(queried).toArray (err, docs) ->
+      return if err? then fn err, null
+      return if docs.length == 0 then fn {error: "Sorry, no documents were found.."}, null
+
+      if docs? then fn null, docs
 
 mongo::countByCollection = (collection, fn) ->
 
@@ -70,5 +76,23 @@ mongo::countByCollection = (collection, fn) ->
   collection.count (err, count) ->
     return if err? then fn err, null
     if count? then fn null, {count: count}
+
+mongo::querier = (qs, fn) ->
+
+  # define a list of protected querys to listen for and not do
+  # searches with them
+  privates = ['skip', 'limit', 'append', 'sort']
+
+  # build out our search/query object
+  query = {}
+
+  for key, value of qs
+    
+    if privates.indexOf(key) == -1 and value.length > 0
+      query[key] = value
+
+    if key == "_id" then query[key] = new ObjectID value
+
+  fn null, query
 
 module.exports = mongo

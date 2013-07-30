@@ -20,7 +20,6 @@ var options = {
     uri: "mongodb://user:pass@127.0.0.1:27017/test"
   }
 };
-
 ```
 
 ### QUERY SUPPORT
