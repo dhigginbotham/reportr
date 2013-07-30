@@ -58,11 +58,13 @@ mongo::connect = (fn) ->
     if db? then fn null, self else fn null, null
 
 mongo::findByCollection = (collection, query, fn) ->
+
+  self = @
   
   # store our collection to a local var
-  collection = @db.collection(collection)
+  collection = self.db.collection(collection)
 
-  @querier query, (err, queried) ->
+  self.querier query, (err, queried) ->
 
     collection.find(queried).toArray (err, docs) ->
       return if err? then fn err, null
@@ -78,6 +80,7 @@ mongo::countByCollection = (collection, fn) ->
   collection.count (err, count) ->
     return if err? then fn err, null
     if count? then fn null, {count: count}
+
 
 mongo::querier = (qs, fn) ->
 
