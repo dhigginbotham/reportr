@@ -51,11 +51,13 @@ mongo::connect = (fn) ->
 
   MongoClient.connect self.uri, (err, db) ->
     return if err? then fn err, null
+
+    console.log "REPORTR ::.-^-.:: connected to #{self.uri}"
+    
     self.db = if db? then db else null
     if db? then fn null, self else fn null, null
 
 mongo::findByCollection = (collection, query, fn) ->
-
   
   # store our collection to a local var
   collection = @db.collection(collection)
