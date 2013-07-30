@@ -2,13 +2,32 @@
 
 Expect this to be completely unstable.
 
-Have you ever needed a way to display your mongodb databases to your boss, or your client, or just pull some stupid reports so you can look cool? Well, I'm trying to achieve that with this module.. Currently, I am going to have this work as an API w/ renderable views for: `CSV`, `PDF`, `HTML w/ Jade` 
+Have you ever needed a way to display your mongodb databases to your boss, or your client, or just pull some stupid reports so you can look cool? Well, I'm trying to achieve that with this module.. Currently, I am going to have this work as an API w/ renderable views for: `CSV`, `PDF`, `HTML w/ Jade` and currently defaults to a restful `JSON` router
 
-### Usage
+### REPORTR SETTINGS
+```js
+var options = {
+  path: "/reports", // expects a string
+  type: "json", // will handle `json`, `html`, `pdf`, `csv`
+  mongo: {
+    ip: "127.0.0.1", // pass a string ip/url
+    port: "27017", // pass a string for the port
+    database: "test", // pass a string for your database
+    user: "user", // pass a string for your database username
+    pass: "pass", // pass a string for your database password
+    // alternatively you can pass a `uri` string ie:
+    uri: "mongodb://user:pass@127.0.0.1:27017/test"
+  }
+};
 
-Option | Default | Info
---- | --- | ---
-`tbd` | `tdb` | `tdb`
+```
+
+### QUERY SUPPORT
+```md
+GET ~/reports/:collection
+GET ~/reports/:collection?key=val
+GET ~/reports/:collection/count
+```
 
 ## MIT
 ```md
