@@ -17,7 +17,7 @@ var reportr_opts = {
      // database or skip that and pass uri: mongodb... etc
   },
   path: "/reports",
-  type: "json"
+  type: "html"
 };
 
 reports = new reportr(reportr_opts);

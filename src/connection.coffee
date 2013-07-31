@@ -5,7 +5,7 @@ MongoClient = require("mongodb").MongoClient
 ObjectID = require("mongodb").ObjectID
 format = require("util").format
 
-mongo = (opts) ->
+mongo = (opts, fn) ->
 
   # ip/url
   @ip = "127.0.0.1"
@@ -36,11 +36,8 @@ mongo = (opts) ->
   # make our connection uri
   if not @uri? then @uri = "mongodb://#{if @auth? then @auth else ""}#{@ip}:#{@port}/#{@database}#{if @query? then @query else ""}"
 
-  # keep our scope in line
-  @
-
-mongo::connect = (fn) ->
-
+  # # keep our scope in line
+  # @
   self = @
 
   # get yo' jiggy wid it, erm I mean connect to the db
@@ -80,7 +77,6 @@ mongo::countByCollection = (collection, fn) ->
   collection.count (err, count) ->
     return if err? then fn err, null
     if count? then fn null, {count: count}
-
 
 mongo::querier = (qs, fn) ->
 

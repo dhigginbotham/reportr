@@ -1,0 +1,11 @@
+extends ../layout
+
+block content
+  
+  div(style="margin: 80px inherit")
+    h1 Documents
+    hr
+    
+    if (reportr)
+      - var docs = JSON.stringify(reportr)
+      pre #{docs}

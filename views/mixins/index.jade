@@ -1,0 +1,7 @@
+mixin parseObject(obj)
+  div
+    each val, key in obj
+      if typeof val === 'string'
+        span #{val}
+      else if typeof val === 'object'
+        mixin parseObject(val)

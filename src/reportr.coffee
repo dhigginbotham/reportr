@@ -15,18 +15,23 @@ reportr = (opts) ->
 
   @template = path.join __dirname, "..", "templates"
 
-  @key = "__reportr"
+  @key = "reportr"
 
   @locals = true
 
   if opts? then _.extend @, opts
 
-  # load in our mongo, so we can play with it
-  @mongo = new mongo @mongo
+  # continue our scope so we don't have to init
+  # with .apply()
 
   self = @
 
+  # load in our mongo, so we can play with it
+  mongo = new mongo @mongo, (err, mongo) ->
+    return if err? then throw err else if mongo? then self.mongo = mongo
+
   @middlr = (req, res, next) ->
+
     # define collection, query params
     collection = req.params.collection
     query = req.query
@@ -36,27 +41,25 @@ reportr = (opts) ->
       return if err? then next err, null
 
       if docs?
-        if self.locals == true then res.locals[self.key] = docs
-        req[self.key] = docs
+        if self.locals == true then req[self.key] = res.locals[self.key] = docs 
+        else req[self.key] = docs
+        
         next()
       else
         next()
 
   @switchr = (req, res) ->
 
-    # continue our scope so we don't have to init
-    # with .apply()
-
     type = self.type.toLowerCase()
 
     switch type
 
       when "html"
-        res.render
+        res.render "pages/default"
       when "csv"
-        res.render
+        res.render "pages/csv"
       when "pdf"
-        res.render
+        res.render "pages/pdf"
       else
         res.send req[self.key]
     
@@ -64,17 +67,25 @@ reportr = (opts) ->
   @
 
 reportr::mount = (app) ->
+
   self = @
 
-  self.mongo.connect (err, mon) ->
+  views_path = path.join __dirname, "..", "views"    
 
-    app.get self.path + "/:collection", self.middlr, self.switchr
+  # define view engine
+  app.set "views", views_path
+  app.set "view engine", "jade"
 
-    # countByCollection
-    app.get self.path + "/:collection/count", (req, res) ->
+  # default router end point
+  app.get self.path + "/:collection", self.middlr, self.switchr
 
-      # define our collection
-      collection = req.params.collection
+  # dynamic action handler route
+  app.get self.path + "/:collection/:action", (req, res) ->
+
+    # define our collection
+    collection = req.params.collection
+
+    if req.params.action == "count"
 
       mon.countByCollection collection, (err, count) ->
         return if err? then res.json err else res.json count
