@@ -27,7 +27,7 @@ var reportr_opts = {
      // you can pass ip, port, and 
      // database or skip that and pass uri: mongodb... etc
   },
-  path: "/reports"
+  path: "/"
 };
 
 reports = new reportr(reportr_opts);
@@ -39,10 +39,9 @@ server.listen(app.get('port'), function() {
 });
 ```
 
-### REPORTR SETTINGS
+### MONGODB SETTINGS
 ```js
 var options = {
-  path: "/reports", // expects a string
   mongo: {
     ip: "127.0.0.1", // pass a string ip/url
     port: "27017", // pass a string for the port
@@ -74,11 +73,20 @@ Option | Default | Info
 **mongo.query** | `null` | query, if required you can pass this in
 **mongo.uri** | `mongodb://127.0.0.1:27017/test` | builds from ip, port, database, user, pass *note, if you just add `uri` it'll use that so you don't have to create all the options
 
+### FORMATS
+
+- `html` - displays html output of db request
+- `json` - displays json output of db request
+- `pdf` - creates a pdf file of db request
+- `csv` - creates a csv file of db request
+
 ### QUERY SUPPORT
 ```md
-GET ~/reports/:collection
-GET ~/reports/:collection?key=val
-GET ~/reports/:collection/count
+GET ~/path/:format/:collection
+GET ~/path/:format/:collection?key=val
+GET ~/path/:format/:collection/count
+
+ALPHA ~/path/:format/:collection/sort?order=+/-key,..
 ```
 
 ## MIT

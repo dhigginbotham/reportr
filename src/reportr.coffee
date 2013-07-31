@@ -112,7 +112,7 @@ reportr = (opts) ->
       when "json"
         if _.isObject req[self.key] == true then res.json req[self.key] else res.send req[self.key]
       else
-        res.send {error: "Unsupported rendering type entered, please check your url"} 
+        res.send {error: "Unsupported format entered, please check your url"} 
     
   # return scope
   @
