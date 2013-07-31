@@ -1,24 +1,3 @@
-/* Internal testing vars, aka magic values */
-
-// gives you access to changing the port for your
-// test express app
-EXPRESS_PORT = 1338
-
-// if you need to use an external db
-MONGODB_URI = null
-
-TEST_OPTIONS = {
-  path: "",
-  mongo: {
-    database: "mgive"
-  }
-};
-
-// give an easier way to pipe in an external db
-if (MONGODB_URI != null) {
-  TEST_OPTIONS.mongo.uri = MONGODB_URI
-}
-
 /* fire up this test bay */
 
 var expect = require('expect.js');
@@ -29,17 +8,50 @@ var app = express();
 
 var server = require('http').createServer(app);
 
-app.set('port', EXPRESS_PORT);
+/* Internal testing vars, aka magic values */
 
-/* Define reportr & options */
+// gives you access to changing the port for your
+// test express app
+var EXPRESS_PORT = 1338;
+
+var APP_PATH = 'http://127.0.0.1' + ':' + EXPRESS_PORT;
+
+// if you need to use an external db
+var MONGODB_URI = null;
+
+var TEST_OPTIONS = {
+  path: '',
+  mongo: {
+    database: 'mgive'
+  }
+};
+
+// give an easier way to pipe in an external db
+if (MONGODB_URI != null) {
+  TEST_OPTIONS.mongo.uri = MONGODB_URI
+}
+
+/* config express options */
+
+app.set('port', EXPRESS_PORT);
 
 var report = require('../lib');
 
-var reportr = new report(TEST_OPTIONS);
+var reportr = null
 
 var router = {}
 router.external = [];
 router.internal = [];
+
+/* Define reportr & options */
+describe('including report and building reportr', function () {
+
+  it('should create a new instance of reportr', function (done) {
+    reportr = new report(TEST_OPTIONS);
+    done();
+  });
+
+});
 
 describe('mounting reportr to express application', function () {
 
@@ -51,7 +63,23 @@ describe('mounting reportr to express application', function () {
 
     reportr.mount(app);
 
-    return done();
+    done();
+
+  });
+
+  it('reportr should be full of values', function (done) {
+
+    expect(reportr.hasOwnProperty('path')).to.be(true);
+    
+    expect(reportr.hasOwnProperty('_routes')).to.be(true);
+    
+    expect(reportr.hasOwnProperty('mongo')).to.be(true);
+    
+    expect(reportr.hasOwnProperty('key')).to.be(true);
+
+    expect(reportr.path.length).to.be.above(0);
+    
+    done();
 
   });
 
@@ -65,7 +93,7 @@ describe('mounting server listener to our application port', function () {
 
       expect(app.get('port')).to.equal(EXPRESS_PORT);
 
-      return done();
+      done();
 
     });
 
@@ -75,7 +103,7 @@ describe('mounting server listener to our application port', function () {
 
       expect(app.routes.get.length).to.be.within(3, 1e5);
       
-      return done();
+      done();
 
   });
 
@@ -89,7 +117,7 @@ describe('mounting server listener to our application port', function () {
 
     expect(router.internal).to.have.length(3);
 
-    return done();
+    done();
 
   });
 
@@ -103,7 +131,7 @@ describe('mounting server listener to our application port', function () {
 
     expect(router.external).to.have.length(3);
 
-    return done();
+    done();
 
   });
 
@@ -111,14 +139,52 @@ describe('mounting server listener to our application port', function () {
 
     for(var i=0;i<router.external.length;++i) {
 
-      matchRoutes = router.external.indexOf(router.internal[i]) != -1;
+      var matchRoutes = router.external.indexOf(router.internal[i]) != -1;
 
       expect(matchRoutes).to.be(true);
 
     };
 
-    return done();
+    done();
 
   });
 
 });
+
+describe('testing app routes with request', function () {
+
+  
+    requestGet = function (url, fn) {
+
+      request.get(url, function (err, resp, body) {
+        fn(body);
+      });
+
+    };
+
+    it('should be able to access some json from request', function (done) {
+
+      for(var i = 0; i < router.internal.length; ++i) {
+
+        requestGet(APP_PATH + router.internal[i], function (body) {
+          expect(body).not.to.be(null);
+          done();
+        });
+
+      };
+
+    });
+
+});
+
+var delayDone = function (args, done, fn) {
+
+  delayed = function (done) {
+
+    return fn(args, done);
+
+  };
+
+  setTimeout(delayed(done, fn), 1 * 1000);
+
+};
