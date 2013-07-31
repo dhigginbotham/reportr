@@ -49,6 +49,9 @@ mongo = (opts, fn) ->
   MongoClient.connect self.uri, (err, db) ->
     return if err? then fn err, null
 
+    db.collectionNames (err, collections) ->
+      self.collections = collections
+
     console.log "REPORTR ::.-^-.:: connected to #{self.uri}"
     
     self.db = if db? then db else null
@@ -57,14 +60,20 @@ mongo = (opts, fn) ->
 mongo::findByCollection = (collection, query, fn) ->
 
   self = @
-  
+
   # store our collection to a local var
-  collection = self.db.collection(collection)
+  collection = @db.collection(collection)
 
-  self.querier query, (err, queried) ->
+  console.assert query != null, "query is returning null into findByCollection"
 
-    collection.find(queried).toArray (err, docs) ->
+  self.querySelector query, (err, sanitized) ->
+    return if err? then fn err, null
+
+    console.assert sanitized != null, "querySelection is returning null"
+    
+    collection.find(sanitized).toArray (err, docs) ->
       return if err? then fn err, null
+      
       return if docs.length == 0 then fn {error: "Sorry, no documents were found.."}, null
 
       if docs? then fn null, docs
@@ -78,7 +87,7 @@ mongo::countByCollection = (collection, fn) ->
     return if err? then fn err, null
     if count? then fn null, {count: count}
 
-mongo::querier = (qs, fn) ->
+mongo::querySelector = (qs, fn) ->
 
   # define a list of protected querys to listen for and not do
   # searches with them
@@ -88,11 +97,11 @@ mongo::querier = (qs, fn) ->
   query = {}
 
   for key, value of qs
-    
+
     if privates.indexOf(key) == -1 and value.length > 0
       query[key] = value
 
-    if key == "_id" then query[key] = new ObjectID value
+    # if key == "_id" then query[key] = new ObjectID value
 
   fn null, query
 

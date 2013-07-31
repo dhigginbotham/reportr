@@ -2,10 +2,13 @@ extends ../layout
 
 block content
   
-  div(style="margin: 80px inherit")
-    h1 Documents
+  div(style="margin: 50px inherit")
+  if (reportr)
+    - var count = reportr.length
+    - var docs = JSON.stringify(reportr, undefined, 2)
+
+    h1 Displaying #{count} #{type}
+
     hr
-    
-    if (reportr)
-      - var docs = JSON.stringify(reportr)
-      pre #{docs}
+    pre.prettyprint.lang-js
+      | #{docs}
