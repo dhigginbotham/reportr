@@ -69,7 +69,7 @@ mongo::findByCollection = (collection, query, fn) ->
   self.querySelector query, (err, sanitized) ->
     return if err? then fn err, null
 
-    console.assert sanitized != null, "querySelection is returning null"
+    console.assert sanitized != null, "querySelector is returning null"
     
     collection.find(sanitized).toArray (err, docs) ->
       return if err? then fn err, null
@@ -87,11 +87,57 @@ mongo::countByCollection = (collection, fn) ->
     return if err? then fn err, null
     if count? then fn null, {count: count}
 
+mongo::sortCollection = (collection, query, sorted, fn) ->
+
+  self = @
+
+  cleanSort = []
+
+  if sorted.indexOf(",") != -1
+
+    sortArr = sorted.split ","
+
+    for s in sortArr
+
+      order = s[0]
+
+      _s = s.substr(1, s.length - 1)
+      
+      if order == "-"
+        cleanSort.push [_s, 'descending']
+      else
+        cleanSort.push [_s, 'ascending']
+
+  else
+
+    order = sorted[0]
+
+    _s = sorted.substr(1, sorted.length - 1)
+    
+    if order == "-"
+      cleanSort.push [_s, 'descending']
+    else
+      cleanSort.push [_s, 'ascending']
+
+  # store our collection to a local var
+  collection = @db.collection(collection)
+
+  console.assert query != null, "query is returning null into sortCollection"
+  
+  self.querySelector query, (err, sanitized) ->
+    return if err? then fn err, null
+
+    console.assert sanitized != null, "querySelector is returning null"
+
+    collection.find(sanitized).sort(cleanSort).toArray (err, count) ->
+      return if err? then fn err, null
+      if count? then fn null, {count: count}
+
 mongo::querySelector = (qs, fn) ->
 
   # define a list of protected querys to listen for and not do
   # searches with them
-  privates = ['skip', 'limit', 'append', 'sort']
+  privates = ['skip', 'limit', 'append', 'order']
 
   # build out our search/query object
   query = {}
@@ -102,6 +148,8 @@ mongo::querySelector = (qs, fn) ->
       query[key] = value
 
     # if key == "_id" then query[key] = new ObjectID value
+
+  console.assert typeof query['order'] == "undefined", "we should never see query or"
 
   fn null, query
 

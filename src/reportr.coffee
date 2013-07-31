@@ -26,6 +26,9 @@ reportr = (opts) ->
   # default `req[key]` string
   @key = "reportr"
 
+  # whether or not to display the `system.indexes`
+  @collections = true
+
   # use locals or not
   @locals = true
 
@@ -51,6 +54,7 @@ reportr = (opts) ->
       return if err? then next err, null
 
       if docs?
+        # define your collection name
         if self.locals == true then res.locals.type = collection
         if self.locals == true then req[self.key] = res.locals[self.key] = docs 
         else req[self.key] = docs
@@ -62,20 +66,41 @@ reportr = (opts) ->
 
     # define our collection
     collection = req.params.collection
+    action = req.params.action
+    query = req.query
 
-    if req.params.action == "count"
+    switch action
 
-      self.mongo.countByCollection collection, (err, count) ->
-        return if err? then next err, null
+      when "count"
 
-        if count?
-          if self.locals == true then res.locals.type = collection
-          if self.locals == true then req[self.key] = res.locals[self.key] = count 
-          else req[self.key] = count
-          
-          next()
-        else
-          next()  
+        self.mongo.countByCollection collection, (err, count) ->
+          return if err? then next err, null
+
+          if count?
+            # define your collection name
+            if self.locals == true then res.locals.type = collection
+            if self.locals == true then req[self.key] = res.locals[self.key] = count 
+            else req[self.key] = count
+
+            next()
+          else
+            next()
+
+      when "sort"
+
+        order = req.param('order')
+
+        self.mongo.sortCollection collection, query, order, (err, docs) ->
+          return if err? then next err, null
+
+          if docs?
+            # define your collection name
+            if self.locals == true then res.locals.type = collection
+            if self.locals == true then req[self.key] = res.locals[self.key] = docs 
+            else req[self.key] = docs
+            next()
+          else
+            next()
 
   @endpoint = (req, res) ->
 
@@ -103,11 +128,6 @@ reportr::mount = (app) ->
   # define view engine
   app.set "views", self.views
   app.set "view engine", self.engine
-
-  # default collection list
-  app.get self.path, (req, res) ->
-
-    res.send self.mongo.collections
 
   # default router end point
   app.get self.path + "/:collection", self.findMiddleware, self.endpoint

@@ -7,8 +7,10 @@ var reportr = require('../lib');
 
 // define a port for our application
 app.set('port', 1337);
-
 // make options for reportr
+app.use(express.methodOverride());
+app.use(express.bodyParser());
+app.use(express.logger('dev'));
 
 var reportr_opts = {
   mongo: {
@@ -21,6 +23,8 @@ var reportr_opts = {
 };
 
 reports = new reportr(reportr_opts);
+
+
 
 reports.mount(app);
 
