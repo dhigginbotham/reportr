@@ -163,7 +163,7 @@ mongo::querySelector = (qs, fn) ->
 
   # define a list of protected querys to listen for and not do
   # searches with them
-  privates = ['skip', 'limit', 'append', 'order']
+  privates = ['skip', 'limit', 'append', 'order', 'id']
 
   # build out our search/query object
   query = {}
@@ -171,9 +171,11 @@ mongo::querySelector = (qs, fn) ->
   for key, value of qs
 
     if privates.indexOf(key) == -1 and value.length > 0
+
       query[key] = value
 
-    if key == "id" or key == "_id" then query['_id'] = new ObjectID value
+
+    if key == "_id" or key == "id" then query["_id"] = new ObjectID value
 
   fn null, query
 
