@@ -48,7 +48,7 @@ describe('including report and building reportr', function () {
 
   it('should create a new instance of reportr', function (done) {
     reportr = new report(TEST_OPTIONS);
-    done();
+    return done();
   });
 
 });
@@ -63,7 +63,7 @@ describe('mounting reportr to express application', function () {
 
     reportr.mount(app);
 
-    done();
+    return done();
 
   });
 
@@ -79,7 +79,7 @@ describe('mounting reportr to express application', function () {
 
     expect(reportr.path.length).to.be.above(0);
     
-    done();
+    return done();
 
   });
 
@@ -93,7 +93,7 @@ describe('mounting server listener to our application port', function () {
 
       expect(app.get('port')).to.equal(EXPRESS_PORT);
 
-      done();
+      return done();
 
     });
 
@@ -103,7 +103,7 @@ describe('mounting server listener to our application port', function () {
 
       expect(app.routes.get.length).to.be.within(3, 1e5);
       
-      done();
+      return done();
 
   });
 
@@ -117,7 +117,7 @@ describe('mounting server listener to our application port', function () {
 
     expect(router.internal).to.have.length(3);
 
-    done();
+    return done();
 
   });
 
@@ -131,7 +131,7 @@ describe('mounting server listener to our application port', function () {
 
     expect(router.external).to.have.length(3);
 
-    done();
+    return done();
 
   });
 
@@ -142,49 +142,28 @@ describe('mounting server listener to our application port', function () {
       var matchRoutes = router.external.indexOf(router.internal[i]) != -1;
 
       expect(matchRoutes).to.be(true);
+      expect(matchRoutes).not.to.be(false);
 
     };
 
-    done();
+    return done();
 
   });
 
 });
 
-describe('testing app routes with request', function () {
+describe('use request to find our routes', function () {
 
-  
-    requestGet = function (url, fn) {
+  it('should return our system.indexes field', function (done) {
 
-      request.get(url, function (err, resp, body) {
-        fn(body);
-      });
-
-    };
-
-    it('should be able to access some json from request', function (done) {
-
-      for(var i = 0; i < router.internal.length; ++i) {
-
-        requestGet(APP_PATH + router.internal[i], function (body) {
-          expect(body).not.to.be(null);
-          done();
-        });
-
-      };
-
+    request.get(APP_PATH + '/api/system.indexes', function (err, resp, body) {
+    
+      expect(body).not.to.be(null);
+      expect(body).not.to.be(undefined);
+      
+      return done();
+    
     });
 
+  });
 });
-
-var delayDone = function (args, done, fn) {
-
-  delayed = function (done) {
-
-    return fn(args, done);
-
-  };
-
-  setTimeout(delayed(done, fn), 1 * 1000);
-
-};
