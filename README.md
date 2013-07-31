@@ -75,10 +75,9 @@ Option | Default | Info
 
 ### FORMATS
 
-- `html` - displays html output of db request
-- `json` - displays json output of db request
-- `pdf` - creates a pdf file of db request
-- `csv` - creates a csv file of db request
+- `html or jade` - displays html output of db request
+- `json or api` - displays json output of db request
+
 
 ### QUERY SUPPORT
 ```md
