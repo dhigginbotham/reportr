@@ -109,8 +109,10 @@ reportr = (opts) ->
       when "html" then router.html req, res
       when "csv" then router.html req, res
       when "pdf" then router.html req, res
-      else 
+      when "json"
         if _.isObject req[self.key] == true then res.json req[self.key] else res.send req[self.key]
+      else
+        res.send {error: "Unsupported rendering type entered, please check your url"} 
     
   # return scope
   @
@@ -123,10 +125,18 @@ reportr::mount = (app) ->
   app.set "views", self.views
   app.set "view engine", self.engine
 
+  if self.path.lastIndexOf("/") == 0 or self.path == ""
+    self.path = "/"
+  else
+    self.path += "/"
+
+  app.get self.path, (req, res) ->
+    res.redirect "#{self.path}json/system.indexes"
+
   # default router end point
-  app.get self.path + "/:format/:collection", self.findMiddleware, self.routeSwitch
+  app.get self.path + ":format/:collection", self.findMiddleware, self.routeSwitch
 
   # dynamic action handler route
-  app.get self.path + "/:format/:collection/:action", self.actionsMiddleware, self.routeSwitch
+  app.get self.path + ":format/:collection/:action", self.actionsMiddleware, self.routeSwitch
 
 module.exports = reportr
