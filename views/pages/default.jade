@@ -1,14 +1,19 @@
 extends ../layout
 
 block content
-  
   div(style="margin: 50px inherit")
   if (reportr)
     - var count = reportr.length
-    - var docs = JSON.stringify(reportr, undefined, 2)
-
-    h1 Displaying #{count} #{type}
-
+    h1
+      i.icon-book
+      |  Displaying #{count} #{type}
     hr
-    pre.prettyprint.lang-js
-      | #{docs}
+    each doc, index in reportr
+      div
+        .alert.alert-info
+          button.close(type="button", data-dismiss="alert") &times;
+          strong _id:
+          |  #{doc._id}
+
+        pre.prettyprint.lang-json(style="padding: 30px;")
+          |  #{JSON.stringify(doc, undefined, 2)}

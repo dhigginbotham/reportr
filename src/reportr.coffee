@@ -87,32 +87,36 @@ reportr = (opts) ->
           else
             next()
 
-      when "order"
+      when "sort"
 
         order = req.query.order
 
-        self.mongo.sortCollection collection, query, order, (err, docs) ->
-          return if err? then next err, null
+        if req.query.hasOwnProperty('order')
 
-          if docs?
-            # define your collection name
-            if self.locals == true then res.locals.type = collection
-            if self.locals == true then req[self.key] = res.locals[self.key] = docs 
-            else req[self.key] = docs
-            next()
-          else
-            next()
+          self.mongo.sortCollection collection, query, order, (err, docs) ->
+            return if err? then next err, null
 
-  @endpoint = (req, res) ->
+            if docs?
+              # define your collection name
+              if self.locals == true then res.locals.type = collection
+              if self.locals == true then req[self.key] = res.locals[self.key] = docs 
+              else req[self.key] = docs
+              next()
+            else
+              next()
+        else
+          res.redirect "back"
+
+  @routeSwitch = (req, res) ->
 
     # keep it all the same
     type = self.type.toLowerCase()
 
     switch type
 
-      when "html" then router.default req, res
-      when "csv" then router.default req, res
-      when "pdf" then router.default req, res
+      when "html" then router.html req, res
+      when "csv" then router.html req, res
+      when "pdf" then router.html req, res
       when "json" then router.json req, res
       else router.json req, res
     
@@ -128,9 +132,9 @@ reportr::mount = (app) ->
   app.set "view engine", self.engine
 
   # default router end point
-  app.get self.path + "/:collection", self.findMiddleware, self.endpoint
+  app.get self.path + "/:collection", self.findMiddleware, self.routeSwitch
 
   # dynamic action handler route
-  app.get self.path + "/:collection/:action", self.actionsMiddleware, self.endpoint
+  app.get self.path + "/:collection/:action", self.actionsMiddleware, self.routeSwitch
 
 module.exports = reportr

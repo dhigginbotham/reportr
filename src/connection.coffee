@@ -31,7 +31,7 @@ mongo = (opts, fn) ->
   @auth = if @user? and @pass? then "#{@user}:#{@pass}@" else null
 
   # sloppily blanket our uri if it's previously set, we can use a fn later to sanitize
-  if @uri? then @port = @ip = @database = @query = @uri
+  if @uri? then @port = @ip = @database = @query = null
 
   # make our connection uri
   if not @uri? then @uri = "mongodb://#{if @auth? then @auth else ""}#{@ip}:#{@port}/#{@database}#{if @query? then @query else ""}"
@@ -74,9 +74,10 @@ mongo::findCollection = (collection, query, fn) ->
     collection.find(sanitized).toArray (err, docs) ->
       return if err? then fn err, null
       
-      return if docs.length == 0 then fn {error: "Sorry, no documents were found.."}, null
+      return if docs.length == 0 then fn JSON.stringify({error: "Sorry, no documents were found.."}), null
 
       if docs? then fn null, docs
+
 
 mongo::countCollection = (collection, fn) ->
 
@@ -107,14 +108,22 @@ mongo::sortCollection = (collection, query, sorted, fn) ->
         return if err? then fn err, null
         if ordered? then fn null, ordered
 
+
+# sortHandler function will grab the first character of a string and
+# pass back an array with `[key, order]` w/ `-` indicating descending 
+# and `+` indicating acsending order
 mongo::sortHandler = (sorted, fn) ->
 
+  # iniatize the array we'll pass back to our callback
   cleanSort = []
 
+  # check to see if there are multiple sort items
   if sorted.indexOf(",") != -1
 
+    # split them on `,`
     sortArr = sorted.split ","
 
+    # run a quick loop and do our magic
     for s in sortArr
 
       order = s[0]
@@ -123,9 +132,14 @@ mongo::sortHandler = (sorted, fn) ->
       
       if order == "-"
         cleanSort.push [_s, 'descending']
-      else
+
+      else if order == "+"
         cleanSort.push [_s, 'ascending']
 
+      # make sure we're not breaking our item 
+      # if we want to lazily handle omiting `+`        
+      else 
+        cleanSort.push [s, 'ascending']
   else
 
     order = sorted[0]
@@ -134,8 +148,14 @@ mongo::sortHandler = (sorted, fn) ->
     
     if order == "-"
       cleanSort.push [_s, 'descending']
-    else
+
+    else if order == "+"
       cleanSort.push [_s, 'ascending']
+
+    # make sure we're not breaking our item 
+    # if we want to lazily handle omiting `+`
+    else
+      cleanSort.push [sorted, 'ascending']
 
   fn null, cleanSort
 
