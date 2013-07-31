@@ -1,5 +1,6 @@
 _ = require "underscore"
 mongo = require "./connection"
+router = require "./router"
 fs = require "fs"
 path = require "path"
 
@@ -49,8 +50,8 @@ reportr = (opts) ->
     collection = req.params.collection
     query = req.query
 
-    # findByCollection
-    self.mongo.findByCollection collection, query, (err, docs) ->
+    # findCollection
+    self.mongo.findCollection collection, query, (err, docs) ->
       return if err? then next err, null
 
       if docs?
@@ -73,7 +74,7 @@ reportr = (opts) ->
 
       when "count"
 
-        self.mongo.countByCollection collection, (err, count) ->
+        self.mongo.countCollection collection, (err, count) ->
           return if err? then next err, null
 
           if count?
@@ -86,9 +87,9 @@ reportr = (opts) ->
           else
             next()
 
-      when "sort"
+      when "order"
 
-        order = req.param('order')
+        order = req.query.order
 
         self.mongo.sortCollection collection, query, order, (err, docs) ->
           return if err? then next err, null
@@ -109,14 +110,11 @@ reportr = (opts) ->
 
     switch type
 
-      when "html"
-        res.render "pages/default"
-      when "csv"
-        res.render "pages/csv"
-      when "pdf"
-        res.render "pages/pdf"
-      when "json"
-        if _.isObject req[self.key] then res.json req[self.key] else res.send req[self.key]
+      when "html" then router.default req, res
+      when "csv" then router.default req, res
+      when "pdf" then router.default req, res
+      when "json" then router.json req, res
+      else router.json req, res
     
   # return scope
   @

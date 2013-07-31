@@ -11,6 +11,7 @@ app.set('port', 1337);
 app.use(express.methodOverride());
 app.use(express.bodyParser());
 app.use(express.logger('dev'));
+app.use(express.errorHandler());
 
 var reportr_opts = {
   mongo: {
@@ -23,8 +24,6 @@ var reportr_opts = {
 };
 
 reports = new reportr(reportr_opts);
-
-
 
 reports.mount(app);
 

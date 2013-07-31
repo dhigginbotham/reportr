@@ -57,7 +57,7 @@ mongo = (opts, fn) ->
     self.db = if db? then db else null
     if db? then fn null, self else fn null, null
 
-mongo::findByCollection = (collection, query, fn) ->
+mongo::findCollection = (collection, query, fn) ->
 
   self = @
 
@@ -78,7 +78,7 @@ mongo::findByCollection = (collection, query, fn) ->
 
       if docs? then fn null, docs
 
-mongo::countByCollection = (collection, fn) ->
+mongo::countCollection = (collection, fn) ->
 
   # store our collection to a local var
   collection = @db.collection(collection)
@@ -90,6 +90,24 @@ mongo::countByCollection = (collection, fn) ->
 mongo::sortCollection = (collection, query, sorted, fn) ->
 
   self = @
+
+  # store our collection to a local var
+  collection = @db.collection(collection)
+
+  self.sortHandler sorted, (err, cleanSort) ->
+
+    console.assert query != null, "query is returning null into sortCollection"
+    
+    self.querySelector query, (err, sanitized) ->
+      return if err? then fn err, null
+
+      console.assert sanitized != null, "querySelector is returning null"
+
+      collection.find(sanitized).sort(cleanSort).toArray (err, ordered) ->
+        return if err? then fn err, null
+        if ordered? then fn null, ordered
+
+mongo::sortHandler = (sorted, fn) ->
 
   cleanSort = []
 
@@ -119,19 +137,7 @@ mongo::sortCollection = (collection, query, sorted, fn) ->
     else
       cleanSort.push [_s, 'ascending']
 
-  # store our collection to a local var
-  collection = @db.collection(collection)
-
-  console.assert query != null, "query is returning null into sortCollection"
-  
-  self.querySelector query, (err, sanitized) ->
-    return if err? then fn err, null
-
-    console.assert sanitized != null, "querySelector is returning null"
-
-    collection.find(sanitized).sort(cleanSort).toArray (err, count) ->
-      return if err? then fn err, null
-      if count? then fn null, {count: count}
+  fn null, cleanSort
 
 mongo::querySelector = (qs, fn) ->
 
@@ -147,9 +153,7 @@ mongo::querySelector = (qs, fn) ->
     if privates.indexOf(key) == -1 and value.length > 0
       query[key] = value
 
-    # if key == "_id" then query[key] = new ObjectID value
-
-  console.assert typeof query['order'] == "undefined", "we should never see query or"
+    if key == "id" or key == "_id" then query['_id'] = new ObjectID value
 
   fn null, query
 
