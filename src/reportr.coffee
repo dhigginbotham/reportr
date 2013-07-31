@@ -29,15 +29,26 @@ reportr = (opts) ->
   @indexes = true
 
   # extend our options
+
   if opts? then _.extend @, opts
 
   # continue our scope so we don't have to init
   # with .apply()
   self = @
 
+  if self.path == "" then self.path = "/"
+
+  if self.path.length > 1 and self.path[0] == "/" then self.path += "/"
+
+  @_routes = {}
+  @_routes.base = self.path
+  @_routes.collection = self.path + ":format/:collection"
+  @_routes.action = self.path + ":format/:collection/:action"
+
   # load in our mongo, so we can play with it
-  new mongo @mongo, (err, mongo) ->
-    return if err? then throw err else if mongo? then self.mongo = mongo
+  self.mongo = new mongo @mongo, (err, mongo) ->
+    return if err? then throw err else if mongo? 
+      self.mongo = mongo
 
   @findMiddleware = (req, res, next) ->
 
@@ -117,7 +128,7 @@ reportr = (opts) ->
         res.send {error: "Unsupported format entered, please check your url"}
     
   # return scope
-  @
+  self
 
 # render some jade 
 reportr::jade = (req, res, next) ->
@@ -140,20 +151,15 @@ reportr::mount = (app) ->
 
   self = @
 
-  # allow for empty paths, or paths with `/somepath` += `/`
-  if self.path.lastIndexOf("/") == 0 or self.path == ""
-    self.path = "/"
-  else
-    self.path += "/"
 
   # provide a default path for user
-  app.get self.path, (req, res) ->
-    res.redirect self.path + "api/system.indexes"
+  app.get self._routes.base, (req, res) ->
+    res.redirect self._routes.base + "api/system.indexes"
 
   # default router end point
-  app.get self.path + ":format/:collection", self.findMiddleware, self.routeSwitch
+  app.get self._routes.collection, self.findMiddleware, self.routeSwitch
 
   # dynamic action handler route
-  app.get self.path + ":format/:collection/:action", self.actionsMiddleware, self.routeSwitch
+  app.get self._routes.action, self.actionsMiddleware, self.routeSwitch
 
 module.exports = reportr

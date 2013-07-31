@@ -28,13 +28,14 @@
     "expect.js": "~0.2.0",
     "express": "latest",
     "flour": "~0.5.5",
-    "jade": "~0.34.1"
+    "jade": "~0.34.1",
+    "request": "~2.25.0"
   },
   "engines": {
     "node": ">=0.8.0"
   },
   "scripts": {
-    "test": "mocha test/reportr.coffee -R spec -t 4000 --compilers coffee:coffee-script"
+    "test": "mocha test/reportr.js -R spec -t 4000"
   },
   "bugs": "https://github.com/dhigginbotham/reportr/issues",
   "repository": {
