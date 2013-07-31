@@ -1,0 +1,42 @@
+!!! 5
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    title REPORTR #{title}
+    meta(name="viewport", content="width=device-width")
+    link(rel="stylesheet", type="text/css", href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css")
+    link(rel="stylesheet", type="text/css", href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css")
+  body
+    .navbar.navbar-inverse.navbar-static-top
+      .container
+        button.navbar-toggle(type='button', data-toggle='collapse', data-target='.nav-collapse')
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.navbar-brand(href='#') REPORTR
+        .nav-collapse.collapse.pull-right
+          ul.nav.navbar-nav
+            li: a(href="#") Home
+    .container
+      div(style="margin: 50px inherit")
+      if (locals)
+        - var count = locals.length
+        h1
+          i.icon-book
+          |  Displaying #{count} #{type}
+        hr
+        each doc, index in locals
+          if (doc._id)
+            div
+              .alert.alert-info
+                button.close(type="button", data-dismiss="alert") &times;
+                strong _id:
+                |  #{doc._id}
+
+          pre.prettyprint.lang-json(style="padding: 30px;")
+            |  #{JSON.stringify(doc, undefined, 2)}
+      //- start layout footer
+      footer
+        script(type="text/javascript", src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")
+        script(type="text/javascript", src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js")
+        script(type="text/javascript", src="//google-code-prettify.googlecode.com/svn/loader/run_prettify.js")

@@ -3,6 +3,7 @@ mongo = require "./connection"
 router = require "./router"
 fs = require "fs"
 path = require "path"
+jade = require "jade"
 
 reportr = (opts) ->
 
@@ -83,7 +84,7 @@ reportr = (opts) ->
       when "sort"
 
         order = req.query.order
-        
+
         if req.query.hasOwnProperty('order') and order.length > 0
 
           self.mongo.sortCollection collection, query, order, (err, docs) ->
@@ -109,9 +110,7 @@ reportr = (opts) ->
 
     switch type
 
-      when "html" then router.html req, res
-      when "csv" then router.html req, res
-      when "pdf" then router.html req, res
+      when "jade", "html" then self.jade req, res
       when "json", "api"
         if _.isObject req[self.key] == true then res.json req[self.key] else res.send req[self.key]
       else
@@ -120,13 +119,23 @@ reportr = (opts) ->
   # return scope
   @
 
-reportr::mount = (app) ->
+# render some jade 
+reportr::jade = (req, res, next) ->
 
   self = @
 
-  # define view engine
-  app.set "views", self.views
-  app.set "view engine", self.engine
+  template = path.join __dirname, "..", "templates", "default.jade"
+  _template = fs.readFileSync template, "utf8"
+
+  options = {}
+  render = jade.compile _template, options
+  html = render res.locals[self.key]
+  
+  res.send html
+
+reportr::mount = (app) ->
+
+  self = @
 
   # allow for empty paths, or paths with `/somepath` += `/`
   if self.path.lastIndexOf("/") == 0 or self.path == ""
@@ -134,8 +143,9 @@ reportr::mount = (app) ->
   else
     self.path += "/"
 
+  # provide a default path for user
   app.get self.path, (req, res) ->
-    res.redirect "#{self.path}json/system.indexes"
+    res.redirect self.path + "api/system.indexes"
 
   # default router end point
   app.get self.path + ":format/:collection", self.findMiddleware, self.routeSwitch
