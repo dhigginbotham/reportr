@@ -125,12 +125,15 @@ reportr::jade = (req, res, next) ->
   self = @
 
   template = path.join __dirname, "..", "templates", "default.jade"
+
   _template = fs.readFileSync template, "utf8"
 
-  options = {}
-  render = jade.compile _template, options
-  html = render res.locals[self.key]
+  options = {pretty: true}
   
+  render = jade.compile _template, options
+  
+  html = render res.locals
+
   res.send html
 
 reportr::mount = (app) ->

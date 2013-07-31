@@ -19,13 +19,13 @@ html(lang="en")
             li: a(href="#") Home
     .container
       div(style="margin: 50px inherit")
-      if (locals)
-        - var count = locals.length
+      if (locals.reportr)
+        - var count = locals.reportr.length
         h1
           i.icon-book
-          |  Displaying #{count} #{type}
+          |  Displaying #{count} #{locals.type}
         hr
-        each doc, index in locals
+        each doc, index in locals.reportr
           if (doc._id)
             div
               .alert.alert-info
