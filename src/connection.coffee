@@ -108,7 +108,6 @@ mongo::sortCollection = (collection, query, sorted, fn) ->
         return if err? then fn err, null
         if ordered? then fn null, ordered
 
-
 # sortHandler function will grab the first character of a string and
 # pass back an array with `[key, order]` w/ `-` indicating descending 
 # and `+` indicating acsending order

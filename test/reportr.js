@@ -2,11 +2,13 @@
 
 var expect = require('expect.js');
 var request = require('request');
+var report = require('../lib');
 
 var express = require('express');
 var app = express();
 
 var server = require('http').createServer(app);
+
 
 /* Internal testing vars, aka magic values */
 
@@ -14,10 +16,14 @@ var server = require('http').createServer(app);
 // test express app
 var EXPRESS_PORT = 1338;
 
+var MAX_DONE_DELAY = 500;
+var TIMEOUT_DONE_DELAY = 75;
+
 var APP_PATH = 'http://127.0.0.1' + ':' + EXPRESS_PORT;
 
 // if you need to use an external db
 var MONGODB_URI = null;
+var MONGOOSE_TEST_COLLECTION = "system.indexes"
 
 var TEST_OPTIONS = {
   path: '',
@@ -35,20 +41,16 @@ if (MONGODB_URI != null) {
 
 app.set('port', EXPRESS_PORT);
 
-var report = require('../lib');
-
-var reportr = null
-
 var router = {}
 router.external = [];
 router.internal = [];
 
 /* Define reportr & options */
-describe('', function () {
+describe('REPORTR ::', function () {
 
-  reportr = new report(TEST_OPTIONS);
+  var reportr = new report(TEST_OPTIONS);
 
-  describe('REPORTR ::.-^-.:: Mounting application routes to express `app`', function () {
+  describe('Mounting application routes to express `app`', function () {
 
     it('should have access to `reportr.mount(app);`', function (done) {
       
@@ -58,7 +60,7 @@ describe('', function () {
 
       reportr.mount(app);
 
-      return done();
+      done();
 
     });
 
@@ -74,14 +76,14 @@ describe('', function () {
 
       expect(reportr.path.length).to.be.above(0);
       
-      return done();
+      done();
 
     });
 
   });
 
 
-  describe('REPORTR ::.-^-.:: Initializing express options on ' + EXPRESS_PORT, function () {
+  describe('Initializing express options on ' + EXPRESS_PORT, function () {
 
     it('should have value from `app.get(\'port\');`', function (done) {
 
@@ -89,7 +91,7 @@ describe('', function () {
 
         expect(app.get('port')).to.equal(EXPRESS_PORT);
 
-        return done();
+        done();
 
       });
 
@@ -99,11 +101,13 @@ describe('', function () {
 
         expect(app.routes.get.length).to.be.within(3, 1e5);
         
-        return done();
+        done();
 
     });
 
     it('should be able to locate our internal routes', function (done) {
+
+      this.timeout(MAX_DONE_DELAY);
 
       var routes = Object.keys(reportr._routes);
 
@@ -113,13 +117,14 @@ describe('', function () {
 
       expect(router.internal).to.have.length(3);
 
-      return done();
+      setTimeout(done, TIMEOUT_DONE_DELAY);
 
     });
 
     it('should also be able to locate our internal routes mapped to express', function (done) {
 
-      
+      this.timeout(MAX_DONE_DELAY);
+
       var expressRoutes = app.routes.get
 
       for (key in expressRoutes) {
@@ -130,13 +135,14 @@ describe('', function () {
 
       expect(router.external).to.have.length(3);
 
-      return done();
+      setTimeout(done, TIMEOUT_DONE_DELAY);
 
 
     });
 
     it('should also be able to match our routes we\'ve mapped to express as well', function (done) {
 
+      this.timeout(MAX_DONE_DELAY);
 
         for(var i=0;i<router.external.length;++i) {
 
@@ -146,35 +152,62 @@ describe('', function () {
 
         };
 
-        return done();
+        // done();
+        setTimeout(done, TIMEOUT_DONE_DELAY);
 
     });
 
   });
 
-  describe('REPORTR ::.-^-.:: Use `request` to find our routes', function () {
+  describe('Use `request` to find our routes', function () {
 
-    it('should return our system.indexes field', function (done) {
+    it('should return our ' +  MONGOOSE_TEST_COLLECTION, function (done) {
 
-      request.get(APP_PATH + '/api/system.indexes', function (err, resp, body) {
+      request.get(APP_PATH + '/api/' + MONGOOSE_TEST_COLLECTION + '', function (err, resp, body) {
       
         expect(body).not.to.be(null);
         expect(body).not.to.be(undefined);
         
-        return done();
+        done();
       
       });
 
     });
 
-    it('should sort our system.indexes collection by namespace in ascending order', function (done) {
+    it('should return the count of ' +  MONGOOSE_TEST_COLLECTION, function (done) {
 
-      request.get(APP_PATH + '/api/system.indexes/sort?order=+ns', function (err, resp, body) {
+      request.get(APP_PATH + '/api/' + MONGOOSE_TEST_COLLECTION + '/count', function (err, resp, body) {
       
         expect(body).not.to.be(null);
         expect(body).not.to.be(undefined);
         
-        return done();
+        done();
+      
+      });
+
+    });
+
+    it('should sort ' + MONGOOSE_TEST_COLLECTION + ' by name in ascending order', function (done) {
+
+      request.get(APP_PATH + '/api/' + MONGOOSE_TEST_COLLECTION + '/sort?order=+name', function (err, resp, body) {
+      
+        expect(body).not.to.be(null);
+        expect(body).not.to.be(undefined);
+        
+        done();
+      
+      });
+
+    });
+
+    it('should sort ' + MONGOOSE_TEST_COLLECTION + ' by name in descending order', function (done) {
+
+      request.get(APP_PATH + '/api/' + MONGOOSE_TEST_COLLECTION + '/sort?order=-name', function (err, resp, body) {
+      
+        expect(body).not.to.be(null);
+        expect(body).not.to.be(undefined);
+
+        done();
       
       });
 
