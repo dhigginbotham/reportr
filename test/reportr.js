@@ -44,126 +44,142 @@ router.external = [];
 router.internal = [];
 
 /* Define reportr & options */
-describe('including report and building reportr', function () {
+describe('', function () {
 
-  it('should create a new instance of reportr', function (done) {
-    reportr = new report(TEST_OPTIONS);
-    return done();
-  });
+  reportr = new report(TEST_OPTIONS);
 
-});
+  describe('REPORTR ::.-^-.:: Mounting application routes to express `app`', function () {
 
-describe('mounting reportr to express application', function () {
+    it('should have access to `reportr.mount(app);`', function (done) {
+      
+      expect(reportr).not.to.be(null);
+      
+      expect(app).not.to.be(null);
 
-  it('should have access to app', function (done) {
-    
-    expect(reportr).not.to.be(null);
-    
-    expect(app).not.to.be(null);
+      reportr.mount(app);
 
-    reportr.mount(app);
+      return done();
 
-    return done();
+    });
 
-  });
+    it('should be full of values', function (done) {
 
-  it('reportr should be full of values', function (done) {
+      expect(reportr.hasOwnProperty('path')).to.be(true);
+      
+      expect(reportr.hasOwnProperty('_routes')).to.be(true);
+      
+      expect(reportr.hasOwnProperty('mongo')).to.be(true);
+      
+      expect(reportr.hasOwnProperty('key')).to.be(true);
 
-    expect(reportr.hasOwnProperty('path')).to.be(true);
-    
-    expect(reportr.hasOwnProperty('_routes')).to.be(true);
-    
-    expect(reportr.hasOwnProperty('mongo')).to.be(true);
-    
-    expect(reportr.hasOwnProperty('key')).to.be(true);
-
-    expect(reportr.path.length).to.be.above(0);
-    
-    return done();
-
-  });
-
-});
-
-describe('mounting server listener to our application port', function () {
-
-  it('should be able to listen on our port', function (done) {
-
-    server.listen(app.get('port'), function () {
-
-      expect(app.get('port')).to.equal(EXPRESS_PORT);
-
+      expect(reportr.path.length).to.be.above(0);
+      
       return done();
 
     });
 
   });
 
-  it('should have at least 3 routes', function (done) {
 
-      expect(app.routes.get.length).to.be.within(3, 1e5);
-      
+  describe('REPORTR ::.-^-.:: Initializing express options on ' + EXPRESS_PORT, function () {
+
+    it('should have value from `app.get(\'port\');`', function (done) {
+
+      server.listen(app.get('port'), function () {
+
+        expect(app.get('port')).to.equal(EXPRESS_PORT);
+
+        return done();
+
+      });
+
+    });
+
+    it('should have added the routes included w/ reportr', function (done) {
+
+        expect(app.routes.get.length).to.be.within(3, 1e5);
+        
+        return done();
+
+    });
+
+    it('should be able to locate our internal routes', function (done) {
+
+      var routes = Object.keys(reportr._routes);
+
+      for (var i = 0;i<routes.length;++i) {
+        router.internal.push(reportr._routes[routes[i]]);
+      };
+
+      expect(router.internal).to.have.length(3);
+
       return done();
 
-  });
+    });
 
-  it('should also be able to locate our 3 internal routes', function (done) {
+    it('should also be able to locate our internal routes mapped to express', function (done) {
 
-    var routes = Object.keys(reportr._routes);
-
-    for (var i = 0;i<routes.length;++i) {
-      router.internal.push(reportr._routes[routes[i]]);
-    };
-
-    expect(router.internal).to.have.length(3);
-
-    return done();
-
-  });
-
-  it('should also be able to locate our routes mapped to express', function (done) {
-
-    var expressRoutes = app.routes.get
-
-    for (key in expressRoutes) {
-      router.external.push(expressRoutes[key]['path']);
-    };
-
-    expect(router.external).to.have.length(3);
-
-    return done();
-
-  });
-
-  it('should also be able to match our routes we\'ve mapped to express as well', function (done) {
-
-    for(var i=0;i<router.external.length;++i) {
-
-      var matchRoutes = router.external.indexOf(router.internal[i]) != -1;
-
-      expect(matchRoutes).to.be(true);
-      expect(matchRoutes).not.to.be(false);
-
-    };
-
-    return done();
-
-  });
-
-});
-
-describe('use request to find our routes', function () {
-
-  it('should return our system.indexes field', function (done) {
-
-    request.get(APP_PATH + '/api/system.indexes', function (err, resp, body) {
-    
-      expect(body).not.to.be(null);
-      expect(body).not.to.be(undefined);
       
+      var expressRoutes = app.routes.get
+
+      for (key in expressRoutes) {
+
+        router.external.push(expressRoutes[key]['path']);
+
+      };
+
+      expect(router.external).to.have.length(3);
+
       return done();
-    
+
+
+    });
+
+    it('should also be able to match our routes we\'ve mapped to express as well', function (done) {
+
+
+        for(var i=0;i<router.external.length;++i) {
+
+          var matchRoutes = router.external.indexOf(router.internal[i]) != -1;
+
+          expect(matchRoutes).to.be(true);
+
+        };
+
+        return done();
+
     });
 
   });
+
+  describe('REPORTR ::.-^-.:: Use `request` to find our routes', function () {
+
+    it('should return our system.indexes field', function (done) {
+
+      request.get(APP_PATH + '/api/system.indexes', function (err, resp, body) {
+      
+        expect(body).not.to.be(null);
+        expect(body).not.to.be(undefined);
+        
+        return done();
+      
+      });
+
+    });
+
+    it('should sort our system.indexes collection by namespace in ascending order', function (done) {
+
+      request.get(APP_PATH + '/api/system.indexes/sort?order=+ns', function (err, resp, body) {
+      
+        expect(body).not.to.be(null);
+        expect(body).not.to.be(undefined);
+        
+        return done();
+      
+      });
+
+    });
+
+  });
+
 });

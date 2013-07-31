@@ -35,7 +35,7 @@
     "node": ">=0.8.0"
   },
   "scripts": {
-    "test": "mocha test/reportr.js -R spec -t 4000"
+    "test": "mocha test/reportr.js -R spec -c -t 4000"
   },
   "bugs": "https://github.com/dhigginbotham/reportr/issues",
   "repository": {
