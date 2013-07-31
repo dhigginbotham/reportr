@@ -19,8 +19,7 @@ var reportr_opts = {
      // you can pass ip, port, and 
      // database or skip that and pass uri: mongodb... etc
   },
-  path: "/reports",
-  type: "html"
+  path: "/reports"
 };
 
 reports = new reportr(reportr_opts);

@@ -10,7 +10,7 @@ reportr = (opts) ->
   @path = "/reports"
 
   # give template for JSON/HTML/PDF/CSV etc files
-  @type = "json"
+  # @type = "json" # DEPRECATED
 
   # mongo options
   @mongo = {}
@@ -110,15 +110,15 @@ reportr = (opts) ->
   @routeSwitch = (req, res) ->
 
     # keep it all the same
-    type = self.type.toLowerCase()
+    type = req.params.format
 
     switch type
 
       when "html" then router.html req, res
       when "csv" then router.html req, res
       when "pdf" then router.html req, res
-      when "json" then router.json req, res
-      else router.json req, res
+      else 
+        if _.isObject req[self.key] == true then res.json req[self.key] else res.send req[self.key]
     
   # return scope
   @
@@ -132,9 +132,9 @@ reportr::mount = (app) ->
   app.set "view engine", self.engine
 
   # default router end point
-  app.get self.path + "/:collection", self.findMiddleware, self.routeSwitch
+  app.get self.path + "/:format/:collection", self.findMiddleware, self.routeSwitch
 
   # dynamic action handler route
-  app.get self.path + "/:collection/:action", self.actionsMiddleware, self.routeSwitch
+  app.get self.path + "/:format/:collection/:action", self.actionsMiddleware, self.routeSwitch
 
 module.exports = reportr
