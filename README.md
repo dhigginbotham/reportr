@@ -4,6 +4,41 @@ Expect this to be completely unstable.
 
 Have you ever needed a way to display your mongodb databases to your boss, or your client, or just pull some stupid reports so you can look cool? Well, I'm trying to achieve that with this module.. Currently, I am going to have this work as an API w/ renderable views for: `CSV`, `PDF`, `HTML w/ Jade` and currently defaults to a restful `JSON` router
 
+### EXAMPLE
+```js
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+
+// require our reportr module
+var reportr = require('../lib');
+
+// define a port for our application
+app.set('port', 1337);
+// make options for reportr
+app.use(express.methodOverride());
+app.use(express.bodyParser());
+app.use(express.logger('dev'));
+app.use(express.errorHandler());
+
+var reportr_opts = {
+  mongo: {
+    database: "test"
+     // you can pass ip, port, and 
+     // database or skip that and pass uri: mongodb... etc
+  },
+  path: "/reports"
+};
+
+reports = new reportr(reportr_opts);
+
+reports.mount(app);
+
+server.listen(app.get('port'), function() {
+  console.log('REPORTR ::.-^-.:: example server starting on %s', app.get('port'));
+});
+```
+
 ### REPORTR SETTINGS
 ```js
 var options = {
