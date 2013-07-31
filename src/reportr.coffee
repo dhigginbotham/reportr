@@ -35,7 +35,7 @@ reportr = (opts) ->
   self = @
 
   # load in our mongo, so we can play with it
-  mongo = new mongo @mongo, (err, mongo) ->
+  new mongo @mongo, (err, mongo) ->
     return if err? then throw err else if mongo? then self.mongo = mongo
 
   @findMiddleware = (req, res, next) ->
@@ -83,8 +83,8 @@ reportr = (opts) ->
       when "sort"
 
         order = req.query.order
-
-        if req.query.hasOwnProperty('order')
+        
+        if req.query.hasOwnProperty('order') and order.length > 0
 
           self.mongo.sortCollection collection, query, order, (err, docs) ->
             return if err? then next err, null
@@ -97,9 +97,12 @@ reportr = (opts) ->
             else
               next()
         else
-          res.redirect "back"
+          next JSON.stringify({error: "You must provide an `order` operator for this method to work properly."}), null
 
   @routeSwitch = (req, res) ->
+
+    # routeSwitch handles `/:format` prefix,
+    # supporting: `html`,`csv`,`pdf`,`json`,`api`
 
     # keep it all the same
     type = req.params.format
@@ -109,10 +112,10 @@ reportr = (opts) ->
       when "html" then router.html req, res
       when "csv" then router.html req, res
       when "pdf" then router.html req, res
-      when "json"
+      when "json", "api"
         if _.isObject req[self.key] == true then res.json req[self.key] else res.send req[self.key]
       else
-        res.send {error: "Unsupported format entered, please check your url"} 
+        res.send {error: "Unsupported format entered, please check your url"}
     
   # return scope
   @
@@ -125,6 +128,7 @@ reportr::mount = (app) ->
   app.set "views", self.views
   app.set "view engine", self.engine
 
+  # allow for empty paths, or paths with `/somepath` += `/`
   if self.path.lastIndexOf("/") == 0 or self.path == ""
     self.path = "/"
   else
