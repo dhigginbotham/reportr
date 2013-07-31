@@ -19,12 +19,16 @@ var reportr_opts = {
      // you can pass ip, port, and 
      // database or skip that and pass uri: mongodb... etc
   },
-  path: "/reports"
+  path: ""
 };
 
 reports = new reportr(reportr_opts);
 
 reports.mount(app);
+
+app.get("/", function(req, res) {
+  return res.redirect("/html/system.indexes");
+});
 
 server.listen(app.get('port'), function() {
   console.log('REPORTR ::.-^-.:: example server starting on %s', app.get('port'));
