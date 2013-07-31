@@ -8,7 +8,6 @@ Have you ever needed a way to display your mongodb databases to your boss, or yo
 ```js
 var options = {
   path: "/reports", // expects a string
-  type: "json", // will handle `json`, `html`, `pdf`, `csv`
   mongo: {
     ip: "127.0.0.1", // pass a string ip/url
     port: "27017", // pass a string for the port
@@ -21,6 +20,24 @@ var options = {
   }
 };
 ```
+
+### OPTIONS
+Option | Default | Info
+--- | --- | ---
+**path** | `./reports` | select your route path
+**output** | `./output` | folder for csv, pdf file creation outputs
+**views** | `./views` | want custom html views? overwrite it with your own.
+**engine** | `jade` | don't want to use jade? ok.
+**key** | `reportr` | key name for the internal `req` object
+**indexes** | `true` | allows access for `system.indexes` to be viewed
+**mongo** | `Object` | options to pass to mongodb, creates a new connection stream so it is recommended you use this locally or on a separate instance 
+**mongo.ip** | `127.0.0.1` | select the mongodb ip or url
+**mongo.port** | `27017` | mongodb port
+**mongo.database** | `test` | mongodb database 
+**mongo.user** | `null` | username to login with 
+**mongo.pass** | `null` | passwork to login with
+**mongo.query** | `null` | query, if required you can pass this in
+**mongo.uri** | `mongodb://127.0.0.1:27017/test` | builds from ip, port, database, user, pass *note, if you just add `uri` it'll use that so you don't have to create all the options
 
 ### QUERY SUPPORT
 ```md

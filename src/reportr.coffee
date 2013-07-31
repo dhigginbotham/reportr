@@ -9,14 +9,11 @@ reportr = (opts) ->
   # path to url prefix
   @path = "/reports"
 
-  # give template for JSON/HTML/PDF/CSV etc files
-  # @type = "json" # DEPRECATED
-
   # mongo options
   @mongo = {}
 
   # default path for templates/render`ables
-  @template = path.join __dirname, "..", "templates"
+  @output = path.join __dirname, "..", "output"
 
   # default path for views
   @views = path.join __dirname, "..", "views"
@@ -28,10 +25,7 @@ reportr = (opts) ->
   @key = "reportr"
 
   # whether or not to display the `system.indexes`
-  @collections = true
-
-  # use locals or not
-  @locals = true
+  @indexes = true
 
   # extend our options
   if opts? then _.extend @, opts
@@ -56,9 +50,9 @@ reportr = (opts) ->
 
       if docs?
         # define your collection name
-        if self.locals == true then res.locals.type = collection
-        if self.locals == true then req[self.key] = res.locals[self.key] = docs 
-        else req[self.key] = docs
+        res.locals.type = collection
+        req[self.key] = res.locals[self.key] = docs 
+
         next()
       else
         next()
@@ -79,9 +73,8 @@ reportr = (opts) ->
 
           if count?
             # define your collection name
-            if self.locals == true then res.locals.type = collection
-            if self.locals == true then req[self.key] = res.locals[self.key] = count 
-            else req[self.key] = count
+            res.locals.type = collection
+            req[self.key] = res.locals[self.key] = count 
 
             next()
           else
@@ -98,9 +91,8 @@ reportr = (opts) ->
 
             if docs?
               # define your collection name
-              if self.locals == true then res.locals.type = collection
-              if self.locals == true then req[self.key] = res.locals[self.key] = docs 
-              else req[self.key] = docs
+              res.locals.type = collection
+              req[self.key] = res.locals[self.key] = docs 
               next()
             else
               next()
