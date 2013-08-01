@@ -49,6 +49,9 @@ mongo = (opts, fn) ->
   MongoClient.connect self.uri, (err, db) ->
     return if err? then fn err, null
 
+    process.on "SIGINT", () ->
+      db.close(); 
+
     db.collectionNames (err, collections) ->
       self.collections = collections
 

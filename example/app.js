@@ -24,7 +24,7 @@ var reportr_opts = {
 
 reports = new reportr(reportr_opts);
 
-reports.mount(app);
+reports.mount(express, app);
 
 server.listen(app.get('port'), function() {
   console.log('REPORTR ::.-^-.:: example server starting on %s', app.get('port'));

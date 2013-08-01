@@ -19,24 +19,19 @@ html(lang="en")
             li: a(href="#") Home
     .container
       div(style="margin: 50px inherit")
-      if (locals.reportr)
-        - var count = locals.reportr.length
-        h1
-          i.icon-book
-          |  Displaying #{count} #{locals.type}
-        hr
-        each doc, index in locals.reportr
-          if (doc._id)
-            div
-              .alert.alert-info
-                button.close(type="button", data-dismiss="alert") &times;
-                strong _id:
-                |  #{doc._id}
+        if (locals.reportr)
+          script.
+          - var count = locals.reportr.length
+          h1
+            i.icon-book
+            |  Displaying #{count} #{locals.type}
+          hr
 
-          pre.prettyprint.lang-json(style="padding: 30px;")
-            |  #{JSON.stringify(doc, undefined, 2)}
-      //- start layout footer
-      footer
-        script(type="text/javascript", src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")
-        script(type="text/javascript", src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js")
-        script(type="text/javascript", src="//google-code-prettify.googlecode.com/svn/loader/run_prettify.js")
+        div#model-details
+          div#model-list-item
+        footer
+          script(type="text/javascript", src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")
+          script(type="text/javascript", src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js")
+          script(type="text/javascript", src="/js/libs/underscore-min.js")
+          script(type="text/javascript", src="/js/libs/backbone-min.js")
+          script(type="text/javascript", src="/js/app.js")

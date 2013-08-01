@@ -13,11 +13,8 @@ reportr = (opts) ->
   # mongo options
   @mongo = {}
 
-  # default path for templates/render`ables
-  @output = path.join __dirname, "..", "output"
-
-  # default path for views
-  @views = path.join __dirname, "..", "views"
+  # define route for SPA
+  @client = template = path.join __dirname, "..", "client"
 
   # default view engine
   @engine = "jade"
@@ -147,10 +144,11 @@ reportr::jade = (req, res, next) ->
 
   res.send html
 
-reportr::mount = (app) ->
+reportr::mount = (connect, app) ->
 
   self = @
 
+  app.use connect.static self.client
 
   # provide a default path for user
   app.get self._routes.base, (req, res) ->

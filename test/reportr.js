@@ -17,7 +17,7 @@ var server = require('http').createServer(app);
 var EXPRESS_PORT = 1338;
 
 var MAX_DONE_DELAY = 500;
-var TIMEOUT_DONE_DELAY = 75;
+var TIMEOUT_DONE_DELAY = 20;
 
 var APP_PATH = 'http://127.0.0.1' + ':' + EXPRESS_PORT;
 
