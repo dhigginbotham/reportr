@@ -197,15 +197,15 @@ reportr::mount = (connect, app) ->
 
   # provide a default path for user
   self.buildRoutePaths ":base", (err, base) ->
-    app.get base + "", (req, res) ->
+    app.get base, (req, res) ->
       res.redirect base + "api/system.indexes"
 
   # default router end point
   self.buildRoutePaths ":collection", (err, collection) ->
-    app.get collection + "", self.isCollectionViewable, self.findMiddleware, self.routeSwitch
+    app.get collection, self.isCollectionViewable, self.findMiddleware, self.routeSwitch
 
   # dynamic action handler route
   self.buildRoutePaths ":action", (err, action) ->
-    app.get action + "", self.isCollectionViewable, self.actionsMiddleware, self.routeSwitch
+    app.get action, self.isCollectionViewable, self.actionsMiddleware, self.routeSwitch
 
 module.exports = reportr
