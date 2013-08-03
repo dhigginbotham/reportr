@@ -25,7 +25,7 @@ reportr = (opts) ->
   # whether or not to display the `system.indexes`
   @indexes = true
 
-  @viewable = ["apps", "users"]
+  @viewable = []
 
   # extend our options
 
@@ -141,7 +141,8 @@ reportr = (opts) ->
 
     index = routes.indexOf(route);
 
-
+    # make sure we're not selecting our first index, and our index is less than
+    # our routes length
     if index >= 0 and index < routes.length
       
       routed = "";
@@ -150,11 +151,12 @@ reportr = (opts) ->
         if routes[i] == ":base" then routes[i] = ""
         routed += routes[i] + if (routes.length > i + 1) then "/" else ""
 
+      if routed.length > 1 and routed[routed.length - 1] == "/" 
+        routed = routed.substr(0, routed.length - 1)
       
-      if routed.length > 1 and routed[routed.length - 1] == "/" then routed = routed.substr(0, routed.length - 1)
       fn null, routed
 
-    else fn null, "error"
+    else fn null, null
 
   @routeSwitch = (req, res) ->
 
@@ -165,9 +167,11 @@ reportr = (opts) ->
 
     switch type
 
-      when "jade", "html" then self.jade req, res
-      when "json", "api"
+      when "html" then self.jade req, res
+      
+      when "api"
         if _.isObject req[self.key] == true then res.json req[self.key] else res.send req[self.key]
+      
       else
         res.send {error: "Unsupported format entered, please check your url"}
     
@@ -179,14 +183,17 @@ reportr::jade = (req, res, next) ->
 
   self = @
 
+  res.locals.navigation = self.viewable
+
   template = fs.readFileSync self.template, "utf8"
 
   options = {pretty: true}
   
+  # call render fn w/ `jade.compile`
   render = jade.compile template, options
-  
   html = render res.locals
 
+  # send our compiled html to the view
   res.send html
 
 reportr::mount = (connect, app) ->

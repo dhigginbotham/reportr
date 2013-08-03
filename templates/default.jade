@@ -16,7 +16,30 @@ html(lang="en")
         a.navbar-brand(href='#') REPORTR
         .nav-collapse.collapse.pull-right
           ul.nav.navbar-nav
-            li: a(href="#") Home
+            if (locals.navigation)
+              each nav in locals.navigation
+                if (nav == locals.type)
+                  li.dropdown.active
+                    a.dropdown-toggle(href="#", data-toggle="dropdown") #{nav} 
+                      b.caret
+                    ul.dropdown-menu
+                      li: a(href="/api/#{nav}") 
+                        i.icon-code-fork 
+                        |  API View
+                      li: a(href="/html/#{nav}") 
+                        i.icon-table
+                        |  HTML View
+                else
+                  li.dropdown
+                    a.dropdown-toggle(href="#", data-toggle="dropdown") #{nav} 
+                      b.caret
+                    ul.dropdown-menu
+                      li: a(href="/api/#{nav}") 
+                        i.icon-code-fork 
+                        |  API View
+                      li: a(href="/html/#{nav}") 
+                        i.icon-table
+                        |  HTML View
     .container
       div(style="margin: 50px inherit")
         if (locals.reportr)
@@ -26,6 +49,8 @@ html(lang="en")
             i.icon-book
             |  Displaying #{count} #{locals.type}
           hr
+
+          pre(style="color:blue") #{JSON.stringify(locals.reportr,undefined,2)}
 
         footer
           script(type="text/javascript", src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")
