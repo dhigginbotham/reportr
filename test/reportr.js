@@ -23,7 +23,10 @@ var APP_PATH = 'http://127.0.0.1' + ':' + EXPRESS_PORT;
 
 // if you need to use an external db
 var MONGODB_URI = null;
-var MONGOOSE_TEST_COLLECTION = "system.indexes"
+
+var MONGOOSE_TEST_COLLECTION = "system.indexes";
+
+var MONGOOSE_INVALID_COLLECTION = "donations";
 
 var TEST_OPTIONS = {
   path: '',
@@ -45,10 +48,10 @@ var router = {}
 router.external = [];
 router.internal = [];
 
+var reportr = new report(TEST_OPTIONS);
+
 /* Define reportr & options */
 describe('REPORTR ::', function () {
-
-  var reportr = new report(TEST_OPTIONS);
 
   describe('Mounting application routes to express `app`', function () {
 
@@ -58,7 +61,7 @@ describe('REPORTR ::', function () {
       
       expect(app).not.to.be(null);
 
-      reportr.mount(app);
+      reportr.mount(express, app);
 
       done();
 
@@ -212,6 +215,37 @@ describe('REPORTR ::', function () {
       });
 
     });
+
+  });
+
+  describe('Verify keeping routes private from public access', function () {
+
+    it('should allow us to view only the routes we\'ve identified inside of `reportr.viewable`', function (done) {
+
+      request.get(APP_PATH + '/api/' + MONGOOSE_TEST_COLLECTION, function (err, resp, body) {
+      
+        expect(body).not.to.be(null);
+        expect(body).not.to.be(undefined);
+
+        done();
+
+      });
+
+    });
+
+    it('should not allow us to view an invalid collection', function (done) {
+
+      request.get(APP_PATH + '/api/' + MONGOOSE_INVALID_COLLECTION, function (err, resp, body) {
+
+        var invalid = JSON.parse(body);
+
+        expect(invalid.error).to.equal('Invalid collection please try again.');
+
+        done();
+
+      });
+
+    })
 
   });
 

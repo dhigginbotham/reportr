@@ -16,8 +16,8 @@ reportr = (opts) ->
   # define route for SPA
   @client = template = path.join __dirname, "..", "client"
 
-  # default view engine
-  @engine = "jade"
+  # define template directory  
+  @template = path.join __dirname, "..", "templates", "default.jade"
 
   # default `req[key]` string
   @key = "reportr"
@@ -25,9 +25,13 @@ reportr = (opts) ->
   # whether or not to display the `system.indexes`
   @indexes = true
 
+  @viewable = ["apps", "users"]
+
   # extend our options
 
   if opts? then _.extend @, opts
+
+  if @indexes == true then @viewable.push "system.indexes"
 
   # continue our scope so we don't have to init
   # with .apply()
@@ -108,10 +112,53 @@ reportr = (opts) ->
         else
           next JSON.stringify({error: "You must provide an `order` operator for this method to work properly."}), null
 
+  @isCollectionViewable = (req, res, next) ->
+
+    # isCollectionViewable allows you to restrict
+    # which collections are publically accessable
+    if req.params.hasOwnProperty('collection')
+      
+      collection = req.params.collection
+
+      if self.viewable.indexOf(collection) != -1
+
+        # collection is allowed
+        next null, true
+
+      else
+
+        # collection is now allowed
+        next JSON.stringify({error: "Invalid collection please try again."}), false
+    else
+
+      next JSON.stringify({error: "Invalid collection please try again."}), null
+
+  @buildRoutePaths = (route, fn) ->
+
+    # buildRoutePaths will return us our different accepted routes
+
+    routes = [":base", ":format", ":collection", ":action"]
+
+    index = routes.indexOf(route);
+
+
+    if index >= 0 and index < routes.length
+      
+      routed = "";
+
+      for i in [0..index]
+        if routes[i] == ":base" then routes[i] = ""
+        routed += routes[i] + if (routes.length > i + 1) then "/" else ""
+
+      
+      if routed.length > 1 and routed[routed.length - 1] == "/" then routed = routed.substr(0, routed.length - 1)
+      fn null, routed
+
+    else fn null, "error"
+
   @routeSwitch = (req, res) ->
 
     # routeSwitch handles `/:format` prefix,
-    # supporting: `html`,`csv`,`pdf`,`json`,`api`
 
     # keep it all the same
     type = req.params.format
@@ -127,18 +174,16 @@ reportr = (opts) ->
   # return scope
   self
 
-# render some jade 
+# render some jade, super sync style
 reportr::jade = (req, res, next) ->
 
   self = @
 
-  template = path.join __dirname, "..", "templates", "default.jade"
-
-  _template = fs.readFileSync template, "utf8"
+  template = fs.readFileSync self.template, "utf8"
 
   options = {pretty: true}
   
-  render = jade.compile _template, options
+  render = jade.compile template, options
   
   html = render res.locals
 
@@ -151,13 +196,16 @@ reportr::mount = (connect, app) ->
   app.use connect.static self.client
 
   # provide a default path for user
-  app.get self._routes.base, (req, res) ->
-    res.redirect self._routes.base + "api/system.indexes"
+  self.buildRoutePaths ":base", (err, base) ->
+    app.get base + "", (req, res) ->
+      res.redirect base + "api/system.indexes"
 
   # default router end point
-  app.get self._routes.collection, self.findMiddleware, self.routeSwitch
+  self.buildRoutePaths ":collection", (err, collection) ->
+    app.get collection + "", self.isCollectionViewable, self.findMiddleware, self.routeSwitch
 
   # dynamic action handler route
-  app.get self._routes.action, self.actionsMiddleware, self.routeSwitch
+  self.buildRoutePaths ":action", (err, action) ->
+    app.get action + "", self.isCollectionViewable, self.actionsMiddleware, self.routeSwitch
 
 module.exports = reportr

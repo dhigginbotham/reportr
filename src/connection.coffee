@@ -50,13 +50,11 @@ mongo = (opts, fn) ->
     return if err? then fn err, null
 
     process.on "SIGINT", () ->
-      db.close(); 
+      db.close();
 
     db.collectionNames (err, collections) ->
       self.collections = collections
 
-    # console.log "REPORTR ::.-^-.:: connected to #{self.uri}"
-    
     self.db = if db? then db else null
     if db? then fn null, self else fn null, null
 
