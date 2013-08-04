@@ -59,11 +59,11 @@ var options = {
 Option | Default | Info
 --- | --- | ---
 **path** | `./reports` | select your route path
-**output** | `./output` | folder for csv, pdf file creation outputs
-**views** | `./views` | want custom html views? overwrite it with your own.
-**engine** | `jade` | don't want to use jade? ok.
 **key** | `reportr` | key name for the internal `req` object
 **indexes** | `true` | allows access for `system.indexes` to be viewed
+**client** | `./client` | set path for backbone.js application files
+**template** | `./template` | set path for template files
+**viewable** | `[]` | select collections in database to be publically viewable
 **mongo** | `Object` | options to pass to mongodb, creates a new connection stream so it is recommended you use this locally or on a separate instance 
 **mongo.ip** | `127.0.0.1` | select the mongodb ip or url
 **mongo.port** | `27017` | mongodb port
@@ -84,8 +84,6 @@ Option | Default | Info
 GET ~/path/:format/:collection
 GET ~/path/:format/:collection?key=val
 GET ~/path/:format/:collection/count
-
-ALPHA ~/path/:format/:collection/sort?order=+/-key,..
 ```
 
 ## MIT
