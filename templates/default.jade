@@ -50,7 +50,10 @@ html(lang="en")
             |  Displaying #{count} #{locals.type}
           hr
 
-          pre(style="color:blue") #{JSON.stringify(locals.reportr,undefined,2)}
+          each rptr, index in locals.reportr
+            legend 
+              |  #{locals.type} #{index + 1}
+            pre(style="color:blue") #{JSON.stringify(rptr,undefined,2)}
 
         footer
           script(type="text/javascript", src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js")
