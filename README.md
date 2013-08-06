@@ -86,6 +86,11 @@ GET ~/path/:format/:collection?key=val
 GET ~/path/:format/:collection/count
 ```
 
+### TODO
+- Build `csv` w/ either node-csv or maybe use the mongoexport through childprocess, not sure the path best suited for this task yet... probably some csv streaming
+- Create `pdf` output
+- Give us some SPA lovin' w/ backbone.js fun..
+
 ## MIT
 ```md
 The MIT License (MIT)
