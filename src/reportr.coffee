@@ -28,7 +28,6 @@ reportr = (opts) ->
   @viewable = []
 
   # extend our options
-
   if opts? then _.extend @, opts
 
   if @indexes == true then @viewable.push "system.indexes"
@@ -40,11 +39,6 @@ reportr = (opts) ->
   if self.path == "" then self.path = "/"
 
   if self.path.length > 1 and self.path[0] == "/" then self.path += "/"
-
-  @_routes = {}
-  @_routes.base = self.path
-  @_routes.collection = self.path + ":format/:collection"
-  @_routes.action = self.path + ":format/:collection/:action"
 
   # load in our mongo, so we can play with it
   self.mongo = new mongo @mongo, (err, mongo) ->
@@ -141,7 +135,7 @@ reportr = (opts) ->
 
     index = routes.indexOf(route);
 
-    # make sure we're not selecting our first index, and our index is less than
+    # make sure we're not selecting an invalid index... and our index is less than
     # our routes length
     if index >= 0 and index < routes.length
       
@@ -164,14 +158,10 @@ reportr = (opts) ->
 
     # keep it all the same
     type = req.params.format
-
     switch type
-
       when "html" then self.jade req, res
-      
       when "api"
         if _.isObject req[self.key] == true then res.json req[self.key] else res.send req[self.key]
-      
       else
         res.send {error: "Unsupported format entered, please check your url"}
     
